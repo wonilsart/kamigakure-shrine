@@ -4,6 +4,8 @@ An idle / incremental game for a VRChat Japanese shrine world. Small stone statu
 Offerings awaken them, awakened kami generate **Reiryoku (霊力 — spiritual mana)**, and enough
 devotion to lesser kami calls down a **greater kami** that empowers its whole domain.
 
+Story, characters, and lore: see **[STORY.md](STORY.md)**.
+
 Target: Unity **2022.3.22f1**, VRChat SDK3 Worlds (with Persistence), UdonSharp.
 
 ---
