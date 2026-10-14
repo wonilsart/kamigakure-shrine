@@ -73,8 +73,13 @@ Target: Unity **2022.3.22f1**, VRChat SDK3 Worlds (with Persistence), UdonSharp.
 ## Scene setup
 
 1. Add an empty `ShrineManager` object with **KamiShrineManager**. Fill the per-kami arrays (same length):
-   `kamiNames`, `kamiDomain` (0–4), `baseRate`, `baseCost`, `kamiAnimators`.
-2. Fill per-domain arrays (length 5): `domainNames`, `greaterAnimators`.
+   `kamiNames`, `kamiDomain` (0–4), `baseRate`, `baseCost`, `kamiAnimators`, `kamiAwakenLines`.
+   `kamiAwakenLines` is the first-awakening dialogue shown as `{name}: {line}`; it follows your `kamiNames`
+   order, so it has no code default — copy the lines from STORY.md → *Draft status lines*. An empty or missing
+   entry falls back to `"{name} awakens!"`.
+2. Fill per-domain arrays (length 5, order Earth, Water, Fire, Wind, Void): `domainNames`, `greaterAnimators`,
+   `greaterManifestLines`. `greaterManifestLines` ships pre-filled with the STORY.md manifest lines; clear an
+   entry to fall back to `"The greater kami of {domain} manifests!"`. The bell's Kohaku remark is `bellLine`.
 3. Each statue: collider + **KamiStatue** with `manager` and `kamiIndex` set.
 4. Bell / omikuji box / purification altar: collider + **ShrineInteractable** with `eventName` = `_RingBell`, `_DrawOmikuji`, or `_Purify`.
 5. Statue Animator: int parameter `AwakeTier` (0 asleep, 1 awake, 2 lv10+, 3 lv25+, 4 lv50+).

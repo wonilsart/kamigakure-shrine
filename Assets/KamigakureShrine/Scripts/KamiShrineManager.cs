@@ -31,10 +31,21 @@ namespace KamigakureShrine
         [Tooltip("Cost of the first level")]
         [SerializeField] private double[] baseCost;
         [SerializeField] private Animator[] kamiAnimators;
+        [Tooltip("First-awakening line per kami (see STORY.md). Empty entry → generic \"{name} awakens!\"")]
+        [SerializeField] private string[] kamiAwakenLines;
 
         // ---------- Greater kami (length 5, one per domain) ----------
         [Header("Greater kami (one per domain)")]
         [SerializeField] private string[] domainNames = { "地 Earth", "水 Water", "火 Fire", "風 Wind", "空 Void" };
+        [Tooltip("Shown on first manifestation. Empty entry → generic \"The greater kami of {domain} manifests!\"")]
+        [SerializeField] private string[] greaterManifestLines =
+        {
+            "山守 The Mountain Guardian: “The path is open. Let them climb.”",
+            "川龍 The River Dragon: “Clean. Finally. You may look at me.”",
+            "狐王 The Fox Lord: “Nine tails. Nine lanterns. I remember my duty now.”",
+            "嵐天狗 The Storm Tengu: “…You re-hung the bell. Then I will ring it.”",
+            "天鏡 The Celestial Mirror clears… and the patron steps out."
+        };
         [SerializeField] private Animator[] greaterAnimators;
         [SerializeField] private int greaterThreshold1 = 25;
         [SerializeField] private int greaterThreshold2 = 50;
@@ -51,6 +62,8 @@ namespace KamigakureShrine
         [SerializeField] private float bellDuration = 30f;
         [SerializeField] private float bellCooldown = 120f;
         [SerializeField] private double bellMultiplier = 2.0;
+        [Tooltip("Kohaku's remark when the bell is rung. Empty → \"The kami stir\"")]
+        [SerializeField] private string bellLine = "Kohaku: “Not so loud. …Again, though.”";
         [SerializeField] private float omikujiDuration = 600f;
         [SerializeField] private float saveInterval = 30f;
 
@@ -187,9 +200,15 @@ namespace KamigakureShrine
             RecomputeRate();
             UpdateCounterUI();
 
-            SetStatus(levels[index] == 1
-                ? kamiNames[index] + " awakens!"
-                : kamiNames[index] + " Lv " + levels[index] + "  (next " + FormatJp(GetCost(index)) + ")");
+            if (levels[index] == 1)
+            {
+                string line = GetLine(kamiAwakenLines, index);
+                SetStatus(line != null ? kamiNames[index] + ": " + line : kamiNames[index] + " awakens!");
+            }
+            else
+            {
+                SetStatus(kamiNames[index] + " Lv " + levels[index] + "  (next " + FormatJp(GetCost(index)) + ")");
+            }
         }
 
         public void _RingBell()
@@ -205,7 +224,8 @@ namespace KamigakureShrine
             bellReadyTime = now + bellCooldown;
             blessingWasActive = true;
             RecomputeRate();
-            SetStatus("鈴 The kami stir — blessing ×" + bellMultiplier.ToString("0.#") + " for " + (int)bellDuration + "s");
+            string flavor = (bellLine != null && bellLine.Length > 0) ? bellLine : "The kami stir";
+            SetStatus("鈴 " + flavor + " — blessing ×" + bellMultiplier.ToString("0.#") + " for " + (int)bellDuration + "s");
         }
 
         public void _DrawOmikuji()
@@ -303,7 +323,11 @@ namespace KamigakureShrine
             greaterTier[domain] = tier;
             UpdateGreaterVisual(domain);
 
-            if (firstManifest) SetStatus("The greater kami of " + domainNames[domain] + " manifests!");
+            if (firstManifest)
+            {
+                string line = GetLine(greaterManifestLines, domain);
+                SetStatus(line != null ? line : "The greater kami of " + domainNames[domain] + " manifests!");
+            }
         }
 
         private void ApplyOfflineProgress(VRCPlayerApi player)
@@ -413,6 +437,14 @@ namespace KamigakureShrine
         private void SetStatus(string msg)
         {
             if (statusText != null) statusText.text = msg;
+        }
+
+        /// <summary>Returns lines[i], or null when the array is missing/short or the entry is empty.</summary>
+        private string GetLine(string[] lines, int i)
+        {
+            if (lines == null || i < 0 || i >= lines.Length) return null;
+            string s = lines[i];
+            return (s == null || s.Length == 0) ? null : s;
         }
 
         /// <summary>Formats with Japanese myriad units: 1.23万, 4.56億, 7.89兆 …</summary>
